@@ -1,0 +1,337 @@
+{% extends 'mainhome/head.html' %}
+{% load static %}
+{% load i18n %}
+{% load custom_filters %}
+{% block head_title %}products{% endblock %}
+{% block content %}
+    <!-- Page Header Start -->
+    <div class="container-fluid bg-secondary mb-5">
+        <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
+            <h1 class="font-weight-semi-bold text-uppercase mb-3">{% trans "Our Shop" %}</h1>
+            <div class="d-inline-flex">
+                <p class="m-0"><a href="">{% trans 'Home' %}</a></p>
+                <p class="m-0 px-2">-</p>
+                <p class="m-0">{% trans 'Shop' %}</p>
+            </div>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+
+    <!-- Shop Start -->
+    <div class="container-fluid pt-5">
+        <div class="row px-xl-5">
+            <!-- Shop Sidebar Start -->
+            <div class="col-lg-3 col-md-12">
+                <form method="get" id="filter-form">
+                <!-- Price Start -->
+                <div class="border-bottom mb-4 pb-4">
+                    <h5 class="font-weight-semi-bold mb-4">{% trans 'Filter by price' %}</h5>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="checkbox" class="custom-control-input" {% if 'all' in selected_price_ranges %}checked{% endif %} id="price-all" name="prices" value="all">
+                        <label class="custom-control-label" for="price-all">{% trans "All Price" %}</label>
+                        <span class="badge border font-weight-normal">{{ total_price_count }}</span>
+                    </div>
+                    {% if price_counts.0 > 0 %}
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input {% if '0,100' in selected_price_ranges %}checked{% endif %} type="checkbox" class="custom-control-input" id="price-1" name="prices" value="0,100">
+                        <label class="custom-control-label" for="price-1">$0 - $100</label>
+                        <span class="badge border font-weight-normal">{{ price_counts.0 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if price_counts.1 > 0 %}
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input {% if '100,200' in selected_price_ranges %}checked{% endif %} type="checkbox" class="custom-control-input" id="price-2" name="prices" value="100,200">
+                        <label class="custom-control-label" for="price-2">$100 - $200</label>
+                        <span class="badge border font-weight-normal">{{ price_counts.1 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if price_counts.2 > 0 %}
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input {% if '200,300' in selected_price_ranges %}checked{% endif %} type="checkbox" class="custom-control-input" id="price-3" name="prices" value="200,300">
+                        <label class="custom-control-label" for="price-3">$200 - $300</label>
+                        <span class="badge border font-weight-normal">{{ price_counts.2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if price_counts.3 > 0 %}
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input {% if '300,400' in selected_price_ranges %}checked{% endif %} type="checkbox" class="custom-control-input" id="price-4" name="prices" value="300,400">
+                        <label class="custom-control-label" for="price-4">$300 - $400</label>
+                        <span class="badge border font-weight-normal">{{ price_counts.3 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if price_bigger400 > 0 %}
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between">
+                        <input {% if '400,99999999' in selected_price_ranges %}checked{% endif %} type="checkbox" class="custom-control-input" id="price-5" name="prices" value="400,99999999">
+                        <label class="custom-control-label" for="price-5">$400 > </label>
+                        <span class="badge border font-weight-normal">{{ price_bigger400}}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <!-- Price End -->
+                
+                <!-- Color Start -->
+                <div class="border-bottom mb-4 pb-4">
+                    <h5 class="font-weight-semi-bold mb-4">{% trans 'Filter by color' %}</h5>
+                    <div class="color-form">
+                        <div class="color-list">
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input type="checkbox" class="custom-control-input" {% if 'all' in selected_colors %}checked{% endif %} id="color-all" name="colors" value="all">
+                                <label class="custom-control-label" for="color-all">{% trans 'All Color' %}</label>
+                                <span class="badge border font-weight-normal">{{ color_total }}</span>
+                            </div>
+                            {% for color_count in color_counts %}
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <input {% if color_count.color_id|stringformat:"s" in selected_colors %}checked{% endif %} type="checkbox" class="custom-control-input" id="color-{{ forloop.counter0|add:1 }}" name="colors" value="{{ color_count.color_id }}">
+                                <label class="custom-control-label" for="color-{{ forloop.counter0|add:1 }}">
+                                    <span class="color-circle" style="background-color: {{ color_count.color__code }};"></span>
+                                </label>
+                                <span class="badge border font-weight-normal">{{ color_count.product_count }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <!-- Color End -->
+
+                <!-- Size Start -->
+                <div class="mb-5">
+                    <h5 class="font-weight-semi-bold mb-4">{% trans 'Filter by size' %}</h5>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input {% if 'all' in selected_sizes %}checked{% endif %} type="checkbox" class="custom-control-input" id="size-all" name="sizes" value="all">
+                        <label class="custom-control-label" for="size-all">{% trans 'All Size' %}</label>
+                        <span class="badge border font-weight-normal">{{ size_total }}</span>
+                    </div>
+                    {% for size_count in size_counts %}
+                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                            <input {% if size_count.size__name in selected_sizes %}checked{% endif %} type="checkbox" class="custom-control-input" id="size-{{ forloop.counter0|add:1 }}" name="sizes" value="{{ size_count.size__name }}">
+                            <label class="custom-control-label" for="size-{{ forloop.counter0|add:1 }}">{{ size_count.size__name }}</label>
+                            <span class="badge border font-weight-normal">{{ size_count.product_count }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <!-- Size End -->
+
+                <!-- Cat Start -->
+                <div class="mb-5">
+                    <h5 class="font-weight-semi-bold mb-4">{% trans 'Filter by Category' %}</h5>
+                    <div class="color-form">
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input {% if 'all' in selected_categories %}checked{% endif %} type="checkbox" class="custom-control-input" id="cats-all" name="cats" value="all">
+                        <label class="custom-control-label" for="cats-all">{% trans 'All Categories' %}</label>
+                        <span class="badge border font-weight-normal">{{ category_total }}</span>
+                    </div>
+                    {% for cat in category_counts %}
+                        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                            <input {% if cat.title in selected_categories %}checked{% endif %} type="checkbox" class="custom-control-input" id="cats-{{ forloop.counter0|add:1 }}" name="cats" value="{{ cat.title }}">
+                            <label class="custom-control-label" for="cats-{{ forloop.counter0|add:1 }}">{{ cat.title }}</label>
+                            <span class="badge border font-weight-normal">{{ cat.product_count }}</span>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+                <!-- Cat End -->
+
+
+                <button type="submit" class="apply-button btn btn-link text-primary ">
+                    <i class="fas fa-check-circle"></i> Apply
+                </button>
+{#                <input type="hidden" id="scroll-position" name="scroll" value="">#}
+                {% for key, value in request.GET.items %}
+                    {% if key != 'prices' and key != 'colors' and key != 'sizes' and key != 'cats' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+                </form>
+            </div>
+            <!-- Shop Sidebar End -->
+
+
+            <!-- Shop Product Start -->
+            <div class="col-lg-9 col-md-12">
+                <div class="row pb-3">
+                    <div class="col-12 pb-1">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <form id="search-form" method="get" action="">
+                                <div class="input-group">
+                                    <input type="search" name="title" class="form-control" placeholder="{% trans "Search by name" %}" value="{{ search_name }}">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-link bg-transparent text-primary">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="scroll-position" name="scroll" value="">
+                                {% for key, value in request.GET.items %}
+                                    {% if key != 'title' and key != 'scroll' %}
+                                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                                    {% endif %}
+                                {% endfor %}
+                            </form>
+
+{#                            <script>#}
+{#                                const searchForm = document.getElementById('search-form');#}
+{#                                const scrollPositionInput = document.getElementById('scroll-position');#}
+{#                                searchForm.addEventListener('submit', function (event) {#}
+{#                                    // Store the current scroll position in the hidden input field#}
+{#                                    scrollPositionInput.value = window.scrollY;#}
+{#                                });#}
+{#                            </script>#}
+                            <script>
+                                window.addEventListener('scroll', function() {
+                                    var scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+                                    document.getElementById('scroll-position').value = scrollPosition;
+                                });
+                            </script>
+                            {% if scroll_position %}
+                                <script>
+                                    // Restore the scroll position after page load
+                                    window.onload = function () {
+                                        const scrollPosition = {{ scroll_position|default:0 }};
+                                        window.scrollTo(0, scrollPosition);
+                                    };
+                                </script>
+                            {% endif %}
+
+                            <form id="sort" method="get" action="">
+                            {% comment %}
+                                <div class="dropdown ml-4">
+                                    <button class="btn border dropdown-toggle" type="button" id="triggerId" data-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="false">
+                                        {% trans 'Sort by' %} <!-- Default text for the dropdown button -->
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="triggerId">
+                                        <a class="dropdown-item {% if sort_by == 'price_asc' %}active{% endif %}" href="?{% querystring_with_sort request 'sort_by' 'price_asc' %}">{% trans 'Price Ascending' %}</a>
+                                        <a class="dropdown-item" href="?{% querystring_with_sort request 'sort_by' 'price_desc' %}">{% trans 'Price Descending' %}</a>
+                                        <a class="dropdown-item" href="?{% querystring_with_sort request 'sort_by' 'latest' %}">{% trans 'Latest' %}</a>
+                                        <a class="dropdown-item" href="?{% querystring_with_sort request 'sort_by' 'popularity' %}">{% trans 'Popularity' %}</a>
+                                    </div>
+                                </div>
+                            {% endcomment %}
+                                <div class="dropdown ml-4">
+                                    <label for="sort-select" class="sr-only">{% trans 'Sort by' %}</label>
+                                    <select class="btn border custom-select" id="sort-select" onchange="location = this.value;">
+                                        <option value="" {% if not sort_by %}selected{% endif %}>{% trans 'Sort by' %}</option>
+                                        <option value="?{% querystring_with_sort request 'sort_by' 'price_asc' %}" {% if sort_by == 'price_asc' %}selected{% endif %}>{% trans 'Price Ascending' %}</option>
+                                        <option value="?{% querystring_with_sort request 'sort_by' 'price_desc' %}" {% if sort_by == 'price_desc' %}selected{% endif %}>{% trans 'Price Descending' %}</option>
+                                        <option value="?{% querystring_with_sort request 'sort_by' 'latest' %}" {% if sort_by == 'latest' %}selected{% endif %}>{% trans 'Latest' %}</option>
+                                        <option value="?{% querystring_with_sort request 'sort_by' 'popularity' %}" {% if sort_by == 'popularity' %}selected{% endif %}>{% trans 'Popularity' %}</option>
+                                    </select>
+                                    <input type="hidden" id="scroll-position" name="scroll" value="">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% if products %}
+                    {% for p in products %}
+                        <div class="col-lg-4 col-md-6 col-sm-12 pb-1">
+                            <div class="card product-item border-0 mb-4">
+                                <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                    <a href="#"><img class="img-fluid w-100" src="{{ p.thumbnail.url }}" alt="{{ p.title }}" width="333" height="500"></a>
+                                </div>
+                                <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                    <a href="#"><h6 class="text-truncate mb-3">{{ p.title }}</h6></a>
+                                    <div class="d-flex justify-content-center">
+                                        <h6>${{ p.price }}</h6>{% if p.old_price > p.price %}<h6 class="text-muted ml-2"><del>${{ p.old_price }}</del></h6>{% endif %}
+                                    </div>
+                                    {% if p.price < p.old_price %}
+                                        <div class="d-flex justify-content-center">
+                                            <h6 style="color: red; font-weight: bold">%{{ p.get_percentage }} {% trans "Discount!" %}</h6>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="card-footer d-flex justify-content-between bg-light border">
+                                    <a href="#" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+                                    <a href="#" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% else %}
+                        <div class="col-sm-12">
+                            <img class="img-fluid w-100" src="{% static 'img/mpa-the-result.gif' %}" alt="Not Found" width="2000" height="1120">
+                        </div>
+                    {% endif %}
+                    <div class="col-12 pb-1">
+                        <nav aria-label="Page navigation">
+                          <ul class="pagination justify-content-center mb-3">
+                            <li class="page-item disabled">
+                              <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">{% trans "Previous" %}</span>
+                              </a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                              <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">{% trans 'Next' %}</span>
+                              </a>
+                            </li>
+                          </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <!-- Shop Product End -->
+        </div>
+    </div>
+    <!-- Shop End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+
+    <script>
+        // Get references to the checkboxes and the Apply button
+        const priceCheckboxes = document.querySelectorAll('.price-checkbox');
+        const colorCheckboxes = document.querySelectorAll('.color-checkbox');
+        const sizeCheckboxes = document.querySelectorAll('.size-checkbox');
+        const applyButton = document.querySelector('.apply-button');
+
+        // Add event listeners to the checkboxes
+        priceCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateFilter);
+        });
+        colorCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateFilter);
+        });
+        sizeCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateFilter);
+        });
+
+        // Add event listener to the Apply button
+        applyButton.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent default form submission
+            document.getElementById('filter-form').submit(); // Submit the form
+        });
+
+        // Function to update the form's action URL based on selected checkboxes
+        function updateFilter() {
+            // Get selected price checkboxes
+            const selectedPrices = Array.from(priceCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value)
+                .join(',');
+
+            // Get selected color checkboxes
+            const selectedColors = Array.from(colorCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value)
+                .join(',');
+
+            // Get selected size checkboxes
+            const selectedSizes = Array.from(sizeCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value)
+                .join(',');
+
+            // Update the form's action URL with selected filters
+            const form = document.getElementById('filter-form');
+            form.action = `?prices=${selectedPrices}&colors=${selectedColors}&sizes=${selectedSizes}`;
+        }
+    </script>
+
+{% endblock %}
+

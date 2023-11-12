@@ -1,0 +1,20 @@
+django==4.1.4
+django-storages==1.13.2
+boto3==1.26.146
+django-extensions
+python-dotenv
+whitenoise
+secret-key-generator
+django-allauth == 0.43.0
+pillow
+django-jazzmin
+django-shortuuidfield
+django-phonenumber-field
+phonenumbers
+django-modeltranslation
+nltk
+
+
+
+
+
